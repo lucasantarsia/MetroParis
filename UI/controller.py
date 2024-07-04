@@ -33,13 +33,18 @@ class Controller:
         self._view.lst_result.controls.append(ft.Text("Grafo pesato creato correttamente."))
         self._view.lst_result.controls.append(ft.Text(f"Il grafo ha {nNodes} nodi."))
         self._view.lst_result.controls.append(ft.Text(f"Il grafo ha {nEdges} archi."))
-        # for a in archiPesoMaggiore:
-        #     self._view.lst_result.controls.append(ft.Text(a))
+        # for u, v, peso in archiPesoMaggiore:
+        #     self._view.lst_result.controls.append(ft.Text(f"{u} - {v} - {peso}"))
         self._view._btnCalcola.disabled = False
         self._view._btnCalcolaPercorso.disabled = False
         self._view.update_page()
 
     def handleCercaRaggiungibili(self,e):
+        if self._fermataPartenza is None:
+            self._view.lst_result.controls.clear()
+            self._view.lst_result.controls.append(ft.Text("Attenzione, selezionare la fermata di partenza!"))
+            self._view.update_page()
+            return
         # visited = self._model.getBFSNodes(self._fermataPartenza)  # il source sarà la fermata di partenza che seleziona l'utente dal dd
         visited = self._model.getDFSNodes(self._fermataPartenza)  # il source sarà la fermata di partenza che seleziona l'utente dal dd
         self._view.lst_result.controls.clear()
@@ -52,17 +57,20 @@ class Controller:
         if self._fermataPartenza is None or self._fermataArrivo is None:
             self._view.lst_result.controls.clear()
             self._view.lst_result.controls.append(ft.Text("Attenzione, selezionare le due fermate!"))
+            self._view.update_page()
             return
 
         totTime, path = self._model.getBestPath(self._fermataPartenza, self._fermataArrivo)
-        if path == []:
+        if path == []:  # se il percorso non esiste, ma in questo caso non è possibile perchè il grafo è connesso
             self._view.lst_result.controls.clear()
             self._view.lst_result.controls.append(ft.Text("Percorso no trovato!"))
+            self._view.update_page()
             return
 
         self._view.lst_result.controls.clear()
         self._view.lst_result.controls.append(ft.Text("Percorso trovato!"))
-        self._view.lst_result.controls.append(ft.Text(f"Il cammino più breve fra {self._fermataPartenza} e {self._fermataArrivo}"
+        self._view.lst_result.controls.append(ft.Text(f"Il cammino più breve fra {self._fermataPartenza} "
+                                                      f"e {self._fermataArrivo}"
                                                       f"impiega {totTime} minuti"))
 
         for p in path:
